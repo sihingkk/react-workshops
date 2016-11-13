@@ -1,0 +1,71 @@
+console.clear();
+
+var source = ['1', '1', 'foo', '2', '3', '5', 'bar', '8', '13'];
+
+var result = source
+  .map(x => parseInt(x))
+  .filter(x => !isNaN(x))
+  .reduce((x, y) => x + y);
+
+console.log(result);
+
+//// mozemy uzywac streamow
+
+var Rx = require('rxjs');
+console.clear();
+
+var source = Rx.Observable.interval(400).take(9)
+.map (i => ['1', '1', 'foo', '2', '3', '5', 'bar', '8', '13'][i] );
+
+var result = source
+  .map(x => parseInt(x))
+  .filter(x => !isNaN(x))
+  .reduce((x, y) => x + y);
+
+result.subscribe(x => console.log(x));
+
+// jak zrobic double click w rxjs?
+
+var button = document.querySelector('.button');
+var label = document.querySelector('h4');
+
+
+var clickStream = Rx.Observable.fromEvent(button, 'click');
+
+var doubleClickStream = clickStream
+  .buffer(() => clickStream.debounce(250))
+  .map(arr => arr.length)
+  .filter(len => len === 2);
+
+doubleClickStream.subscribe(event => {
+  label.innerHTML = 'double click';
+});
+
+doubleClickStream
+  .delay(1000)
+  .subscribe(suggestion => {
+    label.textContent = '-';
+  });
+
+////
+// czemu rx.js?
+var a = 3;
+var b = 100 * a;
+
+console.log(b);
+// chcemy zmienic a na 4
+a = 4;
+var b = 111 * a; // czy tak?
+console.log(b);
+
+
+// dlatego ze chcemy specyfikowac rezczy tylko w czasie deklaracji
+
+var streamA = Rx.Observable.of(3, 4);
+var streamB = streamA.map(a => 10 * a);
+
+// NOT streamA.set(4)!
+
+streamB.subscribe(b => console.log(b));
+
+
